@@ -1,0 +1,65 @@
+server:
+  port: 9191
+
+spring:
+  application:
+    name: API-GATEWAY
+  cloud:
+    gateway:
+      routes:
+      - id: STUDENT-SERVICE
+        uri: lb://STUDENT-SERVICE
+        predicates:
+        - Path=/students/**
+        filters:
+        - name: CircuitBreaker
+          args:
+            name: STUDENT-SERVICE
+            fallbackuri: forward:/studentServiceFallBack
+
+ #     - id: ADMINISTRATION-SERVICE
+  #      uri: lb://ADMINISTRATION-SERVICE
+   #     predicates:
+    #    - Path=/administration/**
+     #   filters:
+      #  - name: CircuitBreaker
+       #   args:
+        #    name: ADMINISTRATION-SERVICE
+         #   fallbackuri: forward:/adminServiceFallBack
+
+ #       - id: BOOK-SERVICE
+  #          uri: lb://BOOK-SERVICE
+   #         predicates:
+    #          - Path=/books/**
+     #       filters:
+      #        - name: CircuitBreaker
+       #         args:
+        #          name: book-SERVICE
+         #         fallbackuri: forward:/bookServiceFallBack
+
+
+hystrix:
+  command:
+    fallbackcmd:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 4000
+          # if I have not get the response from any service for 4 s
+          # then my request will be forwarded to studentServiceFallBack
+          # in example
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    hostname: localhost
