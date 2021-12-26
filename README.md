@@ -1,2 +1,2 @@
-# config-server
+# Config-Server
  
